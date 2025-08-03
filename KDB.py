@@ -449,23 +449,6 @@ def keep_alive():
     t = Thread(target=run)
     t.start()
 
-# === Веб-сервер для Render (health check) ===
-from flask import Flask
-from threading import Thread
-
-app = Flask('')
-
-@app.route('/')
-def home():
-    return "Bot is running", 200
-
-def run():
-    app.run(host='0.0.0.0', port=8080)
-
-# Запускаем веб-сервер в фоне
-Thread(target=run, daemon=True).start()
-
-print("✅ Веб-сервер запущен для health check")
 
 # === ЗАПУСК ===
 # --- ЗАПУСК БОТА (заменить существующий запуск) ---
@@ -476,20 +459,20 @@ time.sleep(2)
 
 # Запуск Flask-сервера в отдельном потоке (если вы этого еще не сделали)
 # Убедитесь, что этот код находится до bot.polling
-# from flask import Flask
-# from threading import Thread
-#
-# app = Flask('') 
-# @app.route('/')
-# def home():
-#     return "Bot is running", 200
-#
-# def run_flask():
-#     app.run(host='0.0.0.0', port=8080)
-#
-# flask_thread = Thread(target=run_flask, daemon=True)
-# flask_thread.start()
-# print("✅ Веб-сервер Flask запущен для health check на порту 8080")
+from flask import Flask
+from threading import Thread
+
+app = Flask('') 
+@app.route('/')
+def home():
+    return "Bot is running", 200
+
+def run_flask():
+    app.run(host='0.0.0.0', port=8080)
+
+flask_thread = Thread(target=run_flask, daemon=True)
+flask_thread.start()
+print("✅ Веб-сервер Flask запущен для health check на порту 8080")
 
 print("🔄 Запускаем Telegram-бота...")
 
