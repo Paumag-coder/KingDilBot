@@ -3,7 +3,7 @@ import json
 import os
 
 # === НАСТРОЙКИ ===
-TOKEN = os.getenv('BOT_TOKEN')
+TOKEN = ('8363133718:AAGcdIhpeulIvbixgB3OQmYRpEvTYgXLYyg')
 bot = telebot.TeleBot(TOKEN)
 
 # Файлы данных
