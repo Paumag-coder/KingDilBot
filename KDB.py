@@ -451,15 +451,21 @@ def keep_alive():
 
 # === Веб-сервер для Render (health check) ===
 from flask import Flask
+from threading import Thread
+
 app = Flask('')
 
 @app.route('/')
 def home():
     return "Bot is running", 200
 
-# Запускаем в отдельном потоке
-from threading import Thread
-Thread(target=app.run, kwargs={'host': '0.0.0.0', 'port': 10000}, daemon=True).start()
+def run():
+    app.run(host='0.0.0.0', port=8080)
+
+# Запускаем веб-сервер в фоне
+Thread(target=run, daemon=True).start()
+
+print("✅ Веб-сервер запущен для health check")
 
 # === ЗАПУСК ===
 print("✅ Достигли места перед keep_alive()")  # ← Добавь эту строку
@@ -468,14 +474,14 @@ print("✅ Бот запущен и работает 24/7...")
 
 import time
 
+print("🔄 Запускаем бота...")
+
+# Делаем паузу на 5 секунд перед стартом, чтобы старый процесс точно завершился
+time.sleep(5)
+
 while True:
     try:
-        print("🔄 Запускаем бота...")
-        bot.polling(
-            none_stop=True,
-            interval=1,
-            timeout=20
-        )
+        bot.polling(none_stop=True, interval=1, timeout=20)
     except Exception as e:
-        print(f"❌ Ошибка: {e}")
-        time.sleep(5)  # Пауза перед перезапуском
+        print(f"❌ Ошибка в polling: {e}")
+        time.sleep(5)  # Ждём перед перезапуском
