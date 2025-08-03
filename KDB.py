@@ -409,7 +409,21 @@ def save_and_update(chat_id, message_id, name, answer):
         poll_data["editable"].remove(name)
     save_poll_data()
     update_poll_form()
-
+try:
+    bot.edit_message_text(
+        chat_id=poll_data["poll_chat_id"],
+        message_id=poll_data["poll_message_id"],
+        text=text,
+        reply_markup=markup,
+        parse_mode="Markdown"
+    )
+except Exception as e:
+    if 'message is not modified' in str(e):
+        pass
+    elif 'message to edit not found' in str(e):
+        print("Сообщение удалено или ID устарел")
+    else:
+        print("Ошибка редактирования:", e)
 
 # === ЗАПУСК ===
 print("✅ Бот запущен и готов к работе...")
@@ -435,8 +449,33 @@ def keep_alive():
     t = Thread(target=run)
     t.start()
 
+# === Веб-сервер для Render (health check) ===
+from flask import Flask
+app = Flask('')
+
+@app.route('/')
+def home():
+    return "Bot is running", 200
+
+# Запускаем в отдельном потоке
+from threading import Thread
+Thread(target=app.run, kwargs={'host': '0.0.0.0', 'port': 10000}, daemon=True).start()
+
 # === ЗАПУСК ===
 print("✅ Достигли места перед keep_alive()")  # ← Добавь эту строку
 keep_alive()
 print("✅ Бот запущен и работает 24/7...")
-bot.polling(none_stop=True)
+
+import time
+
+while True:
+    try:
+        print("🔄 Запускаем бота...")
+        bot.polling(
+            none_stop=True,
+            interval=1,
+            timeout=20
+        )
+    except Exception as e:
+        print(f"❌ Ошибка: {e}")
+        time.sleep(5)  # Пауза перед перезапуском
